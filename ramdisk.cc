@@ -44,8 +44,6 @@ class fileInfo
     }
 };
 
-time_t rootCreateTime;
-
 class dirInfo_t
 {
   public:
@@ -65,15 +63,15 @@ class dirInfo_t
 	int updateFileTime(string filename);
 };
 
-typedef map<string, fileInfo*>::iterator fileListIter;
-typedef map<string, dirInfo_t*>::iterator dirListIter;
-
 int dirInfo_t::updateFileTime(string filename)
 {
 	fileList[filename]->updateTime = time(NULL);
 }
 
+typedef map<string, fileInfo*>::iterator fileListIter;
+typedef map<string, dirInfo_t*>::iterator dirListIter;
 
+time_t rootCreateTime;
 dirInfo_t* currentDirectory = NULL;  
 long curFsSize = 0;
 long maxfsSize;
@@ -144,8 +142,7 @@ int findFile(const char* path)
 	for (;it != dInfo->fileList.end(); it++)
 	{
 		if (!strcmp(sPath.c_str(), it->first.c_str()))
-			return 1;
-		
+			return 1;		
 	}
 	return 0;
 }
@@ -320,7 +317,7 @@ static int ramd_unlink(const char *path)
 
 	string filename = getFileOrDirName(path);
 	curFsSize -= dInfo->fileList[filename]->length();
-	int ret = dInfo->fileList.erase(filename);
+	dInfo->fileList.erase(filename);
 	
 	return 0;
 }
@@ -417,8 +414,7 @@ static int ramd_rename(const char * path, const char *newname)
 		dInfo->fileList[filename] = fInfo;
 	}
 	else
-	{
-		
+	{	
 		dInfo = getDirectory(path, GET_PARENT_DIR); //get parent dir
 		if (dInfo == NULL)
 			return -ENOENT;
@@ -433,8 +429,7 @@ static int ramd_rename(const char * path, const char *newname)
 
 		dirName = getFileOrDirName(newname);
 		tmp->dirName = dirName;
-		dInfo->childDir[dirName] = tmp;
-		
+		dInfo->childDir[dirName] = tmp;	
 	}
 	
 	return 0;
